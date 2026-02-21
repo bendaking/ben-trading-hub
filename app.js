@@ -657,7 +657,8 @@ function renderVideos() {
     list.innerHTML = p.videos.map(v => 
         '<div class="video-item' + (v.watched ? ' watched' : '') + '">' +
         '<input type="checkbox" ' + (v.watched ? 'checked' : '') + ' onchange="toggleVideo(\'' + v.id + '\')">' +
-        '<div class="video-info"><div class="video-title">' + v.title + '</div><div class="video-url"><a href="' + v.url + '" target="_blank">' + v.url + '</a></div></div>' +
+        '<div class="video-info"><div class="video-title">' + v.title + '</div>' +
+        '<button class="play-video-btn" onclick="playVideo(\'' + v.url + '\', \'' + v.title.replace(/'/g, "\\'") + '\')"><i class="fas fa-play"></i> Play</button></div>' +
         '<button class="video-delete" onclick="deleteVideo(\'' + v.id + '\', event)" title="Delete Video"><i class="fas fa-trash"></i></button>' +
         '</div>'
     ).join('');
@@ -669,6 +670,36 @@ function toggleVideo(id) {
         const v = p.videos.find(x => x.id === id);
         if (v) { v.watched = !v.watched; store.save(); renderVideos(); updateDashboard(); }
     }
+}
+
+function extractVideoId(url) {
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+    ];
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    return null;
+}
+
+function playVideo(url, title) {
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+        alert('Invalid YouTube URL');
+        return;
+    }
+    
+    const container = document.getElementById('videoPlayerContainer');
+    container.innerHTML = '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + videoId + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+    
+    document.getElementById('videoModal').classList.remove('hidden');
+}
+
+function closeVideoModal() {
+    document.getElementById('videoModal').classList.add('hidden');
+    document.getElementById('videoPlayerContainer').innerHTML = '';
 }
 
 function renderNotes(search) {

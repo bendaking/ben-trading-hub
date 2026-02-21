@@ -324,6 +324,15 @@
             </div>
         </div>
     </div>
+
+    <!-- YOUTUBE VIDEO MODAL -->
+    <div class="modal hidden" id="videoModal" onclick="closeVideoModal()">
+        <div class="video-modal-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeVideoModal()">&times;</button>
+            <div id="videoPlayerContainer"></div>
+        </div>
+    </div>
+
     <!-- YOUTUBE PLAYLIST IMPORT MODAL -->
     <div class="modal hidden" id="importModal">
         <div class="modal-content">
