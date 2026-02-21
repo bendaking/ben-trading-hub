@@ -809,6 +809,29 @@ header {
     color: var(--text-muted);
 }
 
+.flashcard-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.flashcard-actions button {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.flashcard-actions button:hover {
+    background: var(--primary);
+    color: var(--dark);
+    border-color: var(--primary);
+}
+
 .flashcard-container {
     max-width: 600px;
     margin: 0 auto 30px;
