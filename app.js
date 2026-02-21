@@ -64,6 +64,7 @@ let editingNoteId = null;
 let editingJournalId = null;
 let editingFlashcardId = null;
 let currentCardIndex = 0;
+let currentChartImage = null;
 let currentLightboxImage = null;
 
 // ==================== LOAD DATA ====================
@@ -882,9 +883,15 @@ function renderGallery() {
     }
     
     const filterDate = document.getElementById('galleryDateFilter')?.value;
+    const searchQuery = document.getElementById('gallerySearch')?.value.toLowerCase() || '';
     let filteredG = g;
+    
     if (filterDate) {
-        filteredG = g.filter(i => new Date(i.createdAt).toISOString().split('T')[0] === filterDate);
+        filteredG = filteredG.filter(i => new Date(i.createdAt).toISOString().split('T')[0] === filterDate);
+    }
+    
+    if (searchQuery) {
+        filteredG = filteredG.filter(i => i.name && i.name.toLowerCase().includes(searchQuery));
     }
     
     grid.innerHTML = filteredG.map(i => 
@@ -892,15 +899,15 @@ function renderGallery() {
         '<button class="gallery-download" onclick="downloadChart(\'' + i.id + '\', event)" title="Download"><i class="fas fa-download"></i></button>' +
         '<button class="delete-btn" onclick="deleteChart(\'' + i.id + '\', event)"><i class="fas fa-trash"></i></button>' +
         '<img src="' + i.image + '">' +
-        '<div class="gallery-info"><span class="gallery-date">' + new Date(i.createdAt).toLocaleDateString() + '</span></div></div>'
+        '<div class="gallery-info"><span class="gallery-name">' + (i.name || 'Untitled') + '</span><span class="gallery-date">' + new Date(i.createdAt).toLocaleDateString() + '</span></div></div>'
     ).join('');
     
     if (filteredG.length === 0) {
-        grid.innerHTML = '<div class="empty-state-large"><i class="fas fa-images"></i><p>No charts for this date</p></div>';
+        grid.innerHTML = '<div class="empty-state-large"><i class="fas fa-images"></i><p>No charts found</p></div>';
     }
 }
 
-function filterGalleryByDate() {
+function filterGallery() {
     renderGallery();
 }
 
@@ -918,14 +925,36 @@ document.getElementById('uploadChartInput').onchange = function(e) {
     if (this.files[0]) {
         const r = new FileReader();
         r.onload = ev => { 
-            if (!store.data.gallery) store.data.gallery = [];
-            store.data.gallery.unshift({ id: Date.now().toString(), image: ev.target.result, createdAt: new Date().toISOString() }); 
-            store.save(); 
-            renderGallery(); 
+            currentChartImage = ev.target.result;
+            document.getElementById('chartNameInput').value = '';
+            openModal('chartNameModal');
+            document.getElementById('chartNameInput').focus();
         };
         r.readAsDataURL(this.files[0]);
     }
 };
+
+function closeChartModal() {
+    closeModal('chartNameModal');
+    currentChartImage = null;
+    document.getElementById('uploadChartInput').value = '';
+}
+
+function saveChartWithName() {
+    const name = document.getElementById('chartNameInput').value.trim();
+    if (!currentChartImage) return;
+    
+    if (!store.data.gallery) store.data.gallery = [];
+    store.data.gallery.unshift({ 
+        id: Date.now().toString(), 
+        image: currentChartImage, 
+        name: name,
+        createdAt: new Date().toISOString() 
+    }); 
+    store.save(); 
+    closeChartModal();
+    renderGallery(); 
+}
 
 // ==================== STATS - P/L IN DOLLARS ====================
 function renderStats() {

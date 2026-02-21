@@ -127,7 +127,8 @@
                     <button class="btn-primary" onclick="document.getElementById('uploadChartInput').click()"><i class="fas fa-upload"></i> Upload</button>
                 </div>
                 <div class="gallery-filters">
-                    <input type="date" id="galleryDateFilter" onchange="filterGalleryByDate()">
+                    <input type="text" id="gallerySearch" placeholder="Search by name..." oninput="filterGallery()">
+                    <input type="date" id="galleryDateFilter" onchange="filterGallery()">
                 </div>
                 <div class="gallery-grid" id="galleryGrid"></div>
                 <input type="file" id="uploadChartInput" accept="image/*" hidden>
@@ -348,6 +349,17 @@
                     <button class="btn-secondary" onclick="closeModal('importModal')">Cancel</button>
                     <button class="btn-primary" onclick="importPlaylist()"><i class="fas fa-download"></i> Import</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHART NAME MODAL -->
+    <div class="modal hidden" id="chartNameModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Name Your Chart</h2><button class="close-modal" onclick="closeChartModal()">&times;</button></div>
+            <div>
+                <div class="form-group"><label>Chart Name</label><input type="text" id="chartNameInput" placeholder="Enter chart name"></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeChartModal()">Cancel</button><button class="btn-primary" onclick="saveChartWithName()">Save</button></div>
             </div>
         </div>
     </div>

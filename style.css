@@ -930,6 +930,8 @@ header {
 /* ==================== GALLERY ==================== */
 .gallery-filters {
     margin-bottom: 25px;
+    display: flex;
+    gap: 15px;
 }
 
 .gallery-filters input {
@@ -938,6 +940,8 @@ header {
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
+    flex: 1;
+    max-width: 300px;
 }
 
 .gallery-grid {
@@ -1002,10 +1006,18 @@ header {
 
 .gallery-info {
     padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gallery-name {
+    font-weight: 500;
+    color: var(--text);
 }
 
 .gallery-date {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-muted);
 }
 
