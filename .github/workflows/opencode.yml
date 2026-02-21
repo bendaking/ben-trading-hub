@@ -26,6 +26,6 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         with:
-          model: openrouter/anthropic/claude-sonnet-4-20250514
+          model: openrouter/minimax/minimax-m2.5
           # share: true
           # github_token: ${{ secrets.GITHUB_TOKEN }}
