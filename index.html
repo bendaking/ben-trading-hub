@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT Trading Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo"><i class="fas fa-chart-line"></i><span>Ben's learning website</span></div>
+        <nav><ul>
+            <li class="active" onclick="navigateTo('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
+            <li onclick="navigateTo('courses')"><i class="fas fa-video"></i> Video Courses</li>
+            <li onclick="navigateTo('journal')"><i class="fas fa-book-open"></i> Journal</li>
+            <li onclick="navigateTo('notes')"><i class="fas fa-sticky-note"></i> My Notes</li>
+            <li onclick="navigateTo('flashcards')"><i class="fas fa-layer-group"></i> Flashcards</li>
+            <li onclick="navigateTo('gallery')"><i class="fas fa-images"></i> Chart Gallery</li>
+            <li onclick="navigateTo('stats')"><i class="fas fa-chart-pie"></i> Stats</li>
+        </ul></nav>
+        <div class="sidebar-stats">
+            <div class="stat"><span class="stat-label">Videos Watched</span><span class="stat-value" id="videosWatched">0</span></div>
+            <div class="stat"><span class="stat-label">Notes</span><span class="stat-value" id="notesCount">0</span></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+            <div class="search-box"><i class="fas fa-search"></i><input type="text" id="globalSearch" placeholder="Search anything..." oninput="handleGlobalSearch()"></div>
+            <div class="header-actions">
+                <button class="btn-icon" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- DASHBOARD -->
+            <section class="page" id="dashboardPage">
+                <div class="page-header"><h1>Welcome Back, Ben! 👋</h1><p>Your learning journey at a glance</p></div>
+                <div class="dashboard-grid">
+                    <div class="card stat-card"><h3><i class="fas fa-chart-bar"></i> Quick Stats</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item"><i class="fas fa-play-circle"></i><div><span class="stat-num" id="totalVideos">0</span><span class="stat-text">Videos Watched</span></div></div>
+                            <div class="stat-item"><i class="fas fa-journal-whills"></i><div><span class="stat-num" id="totalJournal">0</span><span class="stat-text">Trade Reviews</span></div></div>
+                            <div class="stat-item"><i class="fas fa-lightbulb"></i><div><span class="stat-num" id="totalNotes">0</span><span class="stat-text">Notes Created</span></div></div>
+                            <div class="stat-item"><i class="fas fa-fire"></i><div><span class="stat-num" id="streakDays">0</span><span class="stat-text">Day Streak</span></div></div>
+                        </div>
+                    </div>
+                    <div class="card recent-card"><h3><i class="fas fa-clock"></i> Recent Notes</h3><div class="recent-list" id="recentNotesList"></div></div>
+                    <div class="card video-progress-card"><h3><i class="fas fa-video"></i> Video Progress</h3>
+                        <div class="video-stats">
+                            <div class="video-stat-item"><span>Playlists</span><strong id="playlistCount">0</strong></div>
+                            <div class="video-stat-item"><span>Total Videos</span><strong id="totalVideoCount">0</strong></div>
+                            <div class="video-stat-item"><span>Watched</span><strong id="watchedCount">0</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIDEO COURSES -->
+            <section class="page hidden" id="coursesPage">
+                <div class="page-header">
+                    <h1>Video Courses</h1>
+                    <p>Track your YouTube learning</p>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button class="btn-primary" onclick="openModal('playlistModal')"><i class="fas fa-plus"></i> New Playlist</button>
+                    <button class="btn-primary" style="background:var(--danger)" onclick="openImportModal()"><i class="fab fa-youtube"></i> Import YouTube Playlist</button>
+                    </div>
+                </div>
+                <div id="playlistsSection"><div class="playlists-grid" id="playlistsGrid"></div></div>
+                <div class="playlist-videos hidden" id="playlistVideos">
+                    <button class="btn-secondary" onclick="backToPlaylists()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h2 id="selectedPlaylistTitle" style="display:inline;margin-left:10px">Videos</h2>
+                    <button class="btn-primary" onclick="openModal('videoModal')" style="margin-left:10px"><i class="fas fa-plus"></i> Add Video</button>
+                    <div class="videos-list" id="videosList"></div>
+                </div>
+            </section>
+
+            <!-- JOURNAL -->
+            <section class="page hidden" id="journalPage">
+                <div class="page-header">
+                    <h1>Trading Journal</h1>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="btn-primary" onclick="openJournalModal()"><i class="fas fa-plus"></i> New Entry</button>
+                        <input type="date" id="journalDateFilter" onchange="filterJournalByDate()" style="padding:12px;background:var(--dark);border:1px solid var(--border);border-radius:8px;color:var(--text);">
+                    </div>
+                </div>
+                <div class="journal-entries" id="journalEntries"></div>
+            </section>
+
+            <!-- NOTES -->
+            <section class="page hidden" id="notesPage">
+                <div class="page-header">
+                    <h1>My Notes</h1><p>Your learning notes</p>
+                    <button class="btn-primary" onclick="openNoteModal()"><i class="fas fa-plus"></i> New Note</button>
+                </div>
+                <div class="notes-search">
+                    <div class="search-box" style="max-width:100%"><i class="fas fa-search"></i><input type="text" id="notesSearch" placeholder="Search notes..." oninput="searchNotes()"></div>
+                </div>
+                <div class="notes-grid" id="notesGrid"></div>
+            </section>
+
+            <!-- FLASHCARDS -->
+            <section class="page hidden" id="flashcardsPage">
+                <div class="page-header">
+                    <h1>Flashcards</h1><p>Quick review</p>
+                    <button class="btn-primary" onclick="openFlashcardModal()"><i class="fas fa-plus"></i> New Flashcard</button>
+                </div>
+                <div class="flashcard-controls">
+                    <button class="btn-secondary" onclick="shuffleCards()"><i class="fas fa-random"></i> Shuffle</button>
+                    <div class="flashcard-stats"><span id="currentCardNum">0</span> / <span id="totalCards">0</span></div>
+                </div>
+                <div class="flashcard-container" id="flashcardContainer"></div>
+                <div class="flashcard-nav hidden" id="flashcardNav">
+                    <button class="nav-btn" onclick="prevCard()"><i class="fas fa-chevron-left"></i> Previous</button>
+                    <button class="nav-btn" onclick="nextCard()">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </section>
+
+            <!-- CHART GALLERY -->
+            <section class="page hidden" id="galleryPage">
+                <div class="page-header">
+                    <h1>Chart Gallery</h1><p>Save charts</p>
+                    <button class="btn-primary" onclick="document.getElementById('uploadChartInput').click()"><i class="fas fa-upload"></i> Upload</button>
+                </div>
+                <div class="gallery-filters">
+                    <input type="date" id="galleryDateFilter" onchange="filterGalleryByDate()">
+                </div>
+                <div class="gallery-grid" id="galleryGrid"></div>
+                <input type="file" id="uploadChartInput" accept="image/*" hidden>
+            </section>
+
+            <!-- STATS -->
+            <section class="page hidden" id="statsPage">
+                <div class="page-header"><h1>Statistics</h1><p>Your performance at a glance</p></div>
+                <div class="stats-grid-full">
+                    <div class="stats-card"><i class="fas fa-chart-line"></i><div class="stats-num" id="statsTotalTrades">0</div><div class="stats-label">Total Trades</div></div>
+                    <div class="stats-card"><i class="fas fa-trophy"></i><div class="stats-num" id="statsWins">0</div><div class="stats-label">Wins</div></div>
+                    <div class="stats-card"><i class="fas fa-times-circle"></i><div class="stats-num" id="statsLosses">0</div><div class="stats-label">Losses</div></div>
+                    <div class="stats-card"><i class="fas fa-percentage"></i><div class="stats-num" id="statsWinRate">0%</div><div class="stats-label">Win Rate</div></div>
+                    <div class="stats-card big stat-profit"><i class="fas fa-dollar-sign"></i><div class="stats-num" id="statsTotalPL">$0</div><div class="stats-label">Total P/L</div></div>
+                    <div class="stats-card"><i class="fas fa-video"></i><div class="stats-num" id="statsVideos">0</div><div class="stats-label">Videos Watched</div></div>
+                    <div class="stats-card"><i class="fas fa-calendar-day"></i><div class="stats-num" id="statsTodayPL">$0</div><div class="stats-label">Today's P/L</div></div>
+                    <div class="stats-card"><i class="fas fa-arrow-trend-up"></i><div class="stats-num" id="statsBestTrade">$0</div><div class="stats-label">Best Trade</div></div>
+                    <div class="stats-card"><i class="fas fa-arrow-trend-down"></i><div class="stats-num" id="statsWorstTrade">$0</div><div class="stats-label">Worst Trade</div></div>
+                </div>
+                <div class="stats-section">
+                    <h3><i class="fas fa-chart-bar"></i> By Contract</h3>
+                    <div class="stats-by-contract" id="statsByContract"></div>
+                </div>
+                <div class="stats-section">
+                    <h3><i class="fas fa-exchange-alt"></i> By Direction</h3>
+                    <div class="stats-by-direction" id="statsByDirection"></div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-chart-pie"></i> Win Rate</h3>
+                    <div class="win-rate-chart">
+                        <div class="win-rate-circle" id="winRateCircle">0%</div>
+                        <div class="win-rate-info">
+                            <div class="win-num" id="winRatePercent">0%</div>
+                            <div class="win-label">Win Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <div class="modal hidden" id="playlistModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>New Playlist</h2><button class="close-modal" onclick="closeModal('playlistModal')">&times;</button></div>
+            <div>
+                <div class="form-group"><label>Name</label><input type="text" id="playlistName" placeholder="Playlist name"></div>
+                <div class="form-group"><label>Description</label><textarea id="playlistDesc" rows="2" placeholder="Description"></textarea></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('playlistModal')">Cancel</button><button class="btn-primary" onclick="submitPlaylist()">Create</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="videoModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Add Video</h2><button class="close-modal" onclick="closeModal('videoModal')">&times;</button></div>
+            <div>
+                <div class="form-group"><label>Title</label><input type="text" id="videoTitle" placeholder="Video title"></div>
+                <div class="form-group"><label>URL</label><input type="text" id="videoUrl" placeholder="YouTube URL"></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('videoModal')">Cancel</button><button class="btn-primary" onclick="submitVideo()">Add</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOURNAL MODAL - FULL FUTURES PARAMETERS -->
+    <div class="modal hidden" id="journalModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="journalModalTitle">New Trade Entry</h2><button class="close-modal" onclick="closeModal('journalModal')">&times;</button></div>
+            <div>
+                <div class="form-row">
+                    <div class="form-group"><label>Date</label><input type="date" id="journalDate"></div>
+                    <div class="form-group"><label>Entry Time</label><input type="time" id="journalEntryTime"></div>
+                    <div class="form-group"><label>Exit Time</label><input type="time" id="journalExitTime"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Contract</label>
+                        <select id="journalContract">
+                            <option value="">-- Select --</option>
+                            <option value="ES">ES (S&P 500)</option>
+                            <option value="NQ">NQ (Nasdaq)</option>
+                            <option value="YM">YM (Dow)</option>
+                            <option value="RTY">RTY (Russell)</option>
+                            <option value="CL">CL (Crude Oil)</option>
+                            <option value="GC">GC (Gold)</option>
+                            <option value="SI">SI (Silver)</option>
+                            <option value="NG">NG (Natural Gas)</option>
+                            <option value="PL">PL (Platinum)</option>
+                            <option value="PA">PA (Palladium)</option>
+                            <option value="HG">HG (Copper)</option>
+                            <option value="ZC">ZC (Corn)</option>
+                            <option value="ZS">ZS (Soybeans)</option>
+                            <option value="ZW">ZW (Wheat)</option>
+                            <option value="HE">HE (Lean Hogs)</option>
+                            <option value="LE">LE (Live Cattle)</option>
+                            <option value="ZB">ZB (30Y Bond)</option>
+                            <option value="ZF">ZF (10Y Note)</option>
+                            <option value="ZN">ZN (5Y Note)</option>
+                            <option value="2YY">2YY (2Y Note)</option>
+                            <option value="6J">6J (Yen)</option>
+                            <option value="6E">6E (Euro)</option>
+                            <option value="6B">6B (British Pound)</option>
+                            <option value="6A">6A (Australian Dollar)</option>
+                            <option value="6C">6C (Canadian Dollar)</option>
+                            <option value="6S">6S (Swiss Franc)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Direction</label>
+                        <select id="journalDirection">
+                            <option value="">-- Select --</option>
+                            <option value="Long">Long (Buy)</option>
+                            <option value="Short">Short (Sell)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="journalStatus">
+                            <option value="win">Win</option>
+                            <option value="loss">Loss</option>
+                            <option value="breakeven">Breakeven</option>
+                            <option value="open">Open</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Entry Price</label><input type="number" step="0.01" id="journalEntry"></div>
+                    <div class="form-group"><label>Exit Price</label><input type="number" step="0.01" id="journalExit"></div>
+                    <div class="form-group"><label>Contracts</label><input type="number" id="journalContracts" value="1" min="1"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Stop Loss</label><input type="number" step="0.01" id="journalSL"></div>
+                    <div class="form-group"><label>Take Profit</label><input type="number" step="0.01" id="journalTP"></div>
+                    <div class="form-group"><label>Points</label><input type="number" step="0.01" id="journalPoints" readonly></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label>Profit/Loss ($)</label><input type="number" step="0.01" id="journalProfit" readonly></div>
+                    <div class="form-group"><label>Setup</label>
+                        <select id="journalSetup">
+                            <option value="">-- Select --</option>
+                            <option value="Order Block">Order Block</option>
+                            <option value="FVG">FVG</option>
+                            <option value="Liquidity Grab">Liquidity Grab</option>
+                            <option value="Breaker Block">Breaker Block</option>
+                            <option value="Market Structure">Market Structure</option>
+                            <option value="ICT Killzone">ICT Killzone</option>
+                            <option value="Opening Range">Opening Range</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Attach Chart (optional)</label>
+                    <select id="journalChart">
+                        <option value="">-- Select a chart --</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Notes</label><textarea id="journalNotes" rows="3" placeholder="Your analysis, reasoning, what worked, what didn't..."></textarea></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('journalModal')">Cancel</button><button class="btn-primary" onclick="submitJournal()">Save</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="noteModalTitle">New Note</h2><button class="close-modal" onclick="closeModal('noteModal')">&times;</button></div>
+            <div>
+                <div class="form-group"><label>Title</label><input type="text" id="noteTitle" placeholder="Note title"></div>
+                <div class="form-group"><label>Link to Video (optional)</label><select id="noteVideo"><option value="">-- Select a video --</option></select></div>
+                <div class="form-group"><label>Category</label><select id="noteCategory"><option>General</option><option>Order Blocks</option><option>FVG</option><option>Liquidity</option><option>Market Structure</option><option>Sessions</option><option>Setups</option></select></div>
+                <div class="form-group"><label>Content</label><textarea id="noteContent" rows="4" placeholder="Write your notes..."></textarea></div>
+                <div class="form-group"><label>Key Takeaways</label><textarea id="noteTakeaway" rows="2" placeholder="What did you learn?"></textarea></div>
+                <div class="form-group"><label>Questions for Later</label><textarea id="noteQuestions" rows="2" placeholder="Questions to research..."></textarea></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('noteModal')">Cancel</button><button class="btn-primary" onclick="submitNote()">Save Note</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="flashcardModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="flashcardModalTitle">New Flashcard</h2><button class="close-modal" onclick="closeModal('flashcardModal')">&times;</button></div>
+            <div>
+                <div class="form-group"><label>Term</label><input type="text" id="flashcardTerm" placeholder="Term"></div>
+                <div class="form-group"><label>Definition</label><textarea id="flashcardDefinition" rows="4" placeholder="Definition"></textarea></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('flashcardModal')">Cancel</button><button class="btn-primary" onclick="submitFlashcard()">Save</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE LIGHTBOX MODAL -->
+    <div class="modal hidden" id="lightboxModal" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+            <img id="lightboxImage" src="" alt="Full size image">
+            <div class="lightbox-actions">
+                <button class="btn-primary" id="lightboxDownloadBtn" onclick="downloadLightboxImage()"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+    </div>
+    <!-- YOUTUBE PLAYLIST IMPORT MODAL -->
+    <div class="modal hidden" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import YouTube Playlist</h2>
+                <button class="close-modal" onclick="closeModal('importModal')">&times;</button>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>YouTube Playlist URL</label>
+                    <input type="text" id="playlistUrl" placeholder="https://www.youtube.com/playlist?list=PL...">
+                </div>
+                <div class="form-group">
+                    <label>Playlist Name (optional)</label>
+                    <input type="text" id="importPlaylistName" placeholder="Leave empty to use YouTube title">
+                </div>
+                <div id="importProgress" class="import-progress hidden">
+                    <p>Importing videos... <span id="importCount">0</span> found</p>
+                    <div class="progress-bar"><div class="progress-fill" id="importBar"></div></div>
+                </div>
+                <div id="importResult" class="import-result hidden"></div>
+                <div class="form-actions">
+                    <button class="btn-secondary" onclick="closeModal('importModal')">Cancel</button>
+                    <button class="btn-primary" onclick="importPlaylist()"><i class="fas fa-download"></i> Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
