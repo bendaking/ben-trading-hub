@@ -107,7 +107,7 @@
             <section class="page hidden" id="flashcardsPage">
                 <div class="page-header">
                     <h1>Flashcards</h1><p>Quick review</p>
-                    <button class="btn-primary" onclick="openModal('flashcardModal')"><i class="fas fa-plus"></i> New Flashcard</button>
+                    <button class="btn-primary" onclick="openFlashcardModal()"><i class="fas fa-plus"></i> New Flashcard</button>
                 </div>
                 <div class="flashcard-controls">
                     <button class="btn-secondary" onclick="shuffleCards()"><i class="fas fa-random"></i> Shuffle</button>
@@ -304,11 +304,11 @@
 
     <div class="modal hidden" id="flashcardModal">
         <div class="modal-content">
-            <div class="modal-header"><h2>New Flashcard</h2><button class="close-modal" onclick="closeModal('flashcardModal')">&times;</button></div>
+            <div class="modal-header"><h2 id="flashcardModalTitle">New Flashcard</h2><button class="close-modal" onclick="closeModal('flashcardModal')">&times;</button></div>
             <div>
                 <div class="form-group"><label>Term</label><input type="text" id="flashcardTerm" placeholder="Term"></div>
                 <div class="form-group"><label>Definition</label><textarea id="flashcardDefinition" rows="4" placeholder="Definition"></textarea></div>
-                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('flashcardModal')">Cancel</button><button class="btn-primary" onclick="submitFlashcard()">Save</button></div>
+                <div class="form-actions"><button class="btn-secondary" onclick="closeModal('flashcardModal')">Cancel</button><button class="btn-primary" id="flashcardSaveBtn" onclick="submitFlashcard()">Save</button></div>
             </div>
         </div>
     </div>
