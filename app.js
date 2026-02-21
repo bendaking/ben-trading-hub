@@ -62,6 +62,7 @@ const store = {
 let currentPlaylistId = null;
 let editingNoteId = null;
 let editingJournalId = null;
+let editingFlashcardId = null;
 let currentCardIndex = 0;
 let currentLightboxImage = null;
 
@@ -415,13 +416,51 @@ function submitFlashcard() {
     if (!term) { alert('Enter a term!'); return; }
     
     if (!store.data.flashcards) store.data.flashcards = [];
-    store.data.flashcards.push({ id: Date.now().toString(), term: term, definition: def });
+    
+    if (editingFlashcardId) {
+        const idx = store.data.flashcards.findIndex(x => x.id === editingFlashcardId);
+        if (idx >= 0) {
+            store.data.flashcards[idx] = { id: editingFlashcardId, term: term, definition: def };
+        }
+        editingFlashcardId = null;
+    } else {
+        store.data.flashcards.push({ id: Date.now().toString(), term: term, definition: def });
+    }
+    
     store.save();
     closeModal('flashcardModal');
     document.getElementById('flashcardTerm').value = '';
     document.getElementById('flashcardDefinition').value = '';
     currentCardIndex = 0;
     renderFlashcards();
+}
+
+function openFlashcardModal() {
+    editingFlashcardId = null;
+    document.getElementById('flashcardModalTitle').textContent = 'New Flashcard';
+    document.getElementById('flashcardTerm').value = '';
+    document.getElementById('flashcardDefinition').value = '';
+    openModal('flashcardModal');
+}
+
+function editFlashcard(id) {
+    const c = (store.data.flashcards || []).find(x => x.id === id);
+    if (!c) return;
+    editingFlashcardId = id;
+    document.getElementById('flashcardModalTitle').textContent = 'Edit Flashcard';
+    document.getElementById('flashcardTerm').value = c.term;
+    document.getElementById('flashcardDefinition').value = c.definition;
+    openModal('flashcardModal');
+}
+
+function deleteFlashcard(id) {
+    if (confirm('Delete this flashcard?')) {
+        if (!store.data.flashcards) store.data.flashcards = [];
+        store.data.flashcards = store.data.flashcards.filter(x => x.id !== id);
+        store.save();
+        currentCardIndex = 0;
+        renderFlashcards();
+    }
 }
 
 // ==================== DOWNLOAD NOTES ====================
@@ -791,7 +830,7 @@ function renderFlashcards() {
     const container = document.getElementById('flashcardContainer');
     const nav = document.getElementById('flashcardNav');
     if (cards.length === 0) {
-        container.innerHTML = '<div class="empty-state-large"><i class="fas fa-layer-group"></i><p>No flashcards</p><button class="btn-primary" onclick="openModal(\'flashcardModal\')">New</button></div>';
+        container.innerHTML = '<div class="empty-state-large"><i class="fas fa-layer-group"></i><p>No flashcards</p><button class="btn-primary" onclick="openFlashcardModal()">New</button></div>';
         nav.classList.add('hidden');
         return;
     }
@@ -807,7 +846,11 @@ function renderFlashcards() {
         '<h4>Definition</h4>' +
         '<p>' + c.definition + '</p>' +
         '</div>' +
-        '</div></div>';
+        '</div></div>' +
+        '<div class="flashcard-actions">' +
+        '<button class="btn-secondary" onclick="editFlashcard(\'' + c.id + '\')"><i class="fas fa-edit"></i> Edit</button>' +
+        '<button class="btn-danger" onclick="deleteFlashcard(\'' + c.id + '\')"><i class="fas fa-trash"></i> Delete</button>' +
+        '</div>';
 }
 
 function prevCard() {
