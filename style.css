@@ -1050,7 +1050,7 @@ header {
     margin-top: 15px;
 }
 
-#videoModal {
+#youtubePlayerModal {
     background: rgba(0, 0, 0, 0.95);
     z-index: 1001;
 }

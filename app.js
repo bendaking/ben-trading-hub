@@ -694,11 +694,11 @@ function playVideo(url, title) {
     const container = document.getElementById('videoPlayerContainer');
     container.innerHTML = '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + videoId + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
     
-    document.getElementById('videoModal').classList.remove('hidden');
+    document.getElementById('youtubePlayerModal').classList.remove('hidden');
 }
 
 function closeVideoModal() {
-    document.getElementById('videoModal').classList.add('hidden');
+    document.getElementById('youtubePlayerModal').classList.add('hidden');
     document.getElementById('videoPlayerContainer').innerHTML = '';
 }
 
