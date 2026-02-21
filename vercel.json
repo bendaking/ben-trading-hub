@@ -1,5 +1,5 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/ict-trading-hub/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
