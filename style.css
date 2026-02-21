@@ -380,6 +380,24 @@ header {
     border-color: var(--primary);
 }
 
+.btn-danger {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #c0392b;
+}
+
 /* ==================== PLAYLISTS ==================== */
 .playlists-grid {
     display: grid;
@@ -701,6 +719,7 @@ header {
     border-radius: 12px;
     padding: 20px;
     transition: all 0.2s;
+    cursor: pointer;
 }
 
 .note-card:hover {
@@ -723,13 +742,22 @@ header {
     font-size: 1.1rem;
 }
 
-.note-preview {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    max-height: 80px;
-    overflow: hidden;
+.note-preview,
+.note-takeaway,
+.note-questions,
+.note-footer {
+    display: none;
+}
+
+.note-card.expanded {
+    cursor: default;
+}
+
+.note-card.expanded .note-preview,
+.note-card.expanded .note-takeaway,
+.note-card.expanded .note-questions,
+.note-card.expanded .note-footer {
+    display: block;
 }
 
 .video-link {
@@ -800,6 +828,58 @@ header {
 .note-actions button:hover {
     background: var(--dark);
     color: var(--primary);
+}
+
+.expanded-content-text {
+    line-height: 1.7;
+    margin: 20px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#expandedNoteContent .note-takeaway,
+#expandedNoteContent .note-questions {
+    display: block;
+}
+
+#expandedNoteModal .modal-content {
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#expandedNoteContent {
+    padding: 10px 0;
+}
+
+.note-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+}
+
+.expanded-content-text {
+    line-height: 1.7;
+    margin: 20px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#expandedNoteContent .note-takeaway,
+#expandedNoteContent .note-questions {
+    display: block;
+}
+
+#expandedNoteModal .modal-content {
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#expandedNoteContent {
+    padding: 10px 0;
 }
 
 /* ==================== FLASHCARDS - FIXED FLIP ==================== */

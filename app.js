@@ -2,7 +2,7 @@
 // 1. Delete playlist and videos
 // 2. Chart gallery download + lightbox view
 // 3. Flashcards fix (flip works now)
-// 4. Stats - removed pips, added P/L in dollars
+// 4. Stats - removed pips, added P/L in dollarsss
 const YOUTUBE_API_KEY = 'AIzaSyB8jTuP8fvn4eOmZeaymdbCGCju2SiIT40';  
 // ==================== FIREBASE CONFIGURATION ====================
 const firebaseConfig = {
@@ -725,13 +725,13 @@ function renderNotes(search) {
         let questions = '';
         if (n.questions) questions = '<div class="note-questions"><i class="fas fa-question-circle"></i> ' + n.questions + '</div>';
         
-        return '<div class="note-card">' + videoLink +
+        return '<div class="note-card" onclick="expandNote(\'' + n.id + '\')">' + videoLink +
         '<span class="note-category">' + n.category + '</span>' +
         '<h4>' + n.title + '</h4>' +
         '<p class="note-preview">' + (n.content || '') + '</p>' +
         takeaway + questions +
         '<div class="note-footer"><span class="note-date">' + new Date(n.createdAt).toLocaleDateString() + '</span>' +
-        '<div class="note-actions">' +
+        '<div class="note-actions" onclick="event.stopPropagation()">' +
         '<button onclick="downloadNoteTxt(\'' + n.id + '\')" title="Download TXT"><i class="fas fa-file-alt"></i></button>' +
         '<button onclick="downloadNoteDoc(\'' + n.id + '\')" title="Download DOC"><i class="fas fa-file-word"></i></button>' +
         '<button onclick="editNote(\'' + n.id + '\')"><i class="fas fa-edit"></i></button>' +
@@ -766,6 +766,34 @@ function deleteNote(id) {
         renderNotes();
         updateDashboard();
     }
+}
+
+function expandNote(id) {
+    const n = (store.data.notes || []).find(x => x.id === id);
+    if (!n) return;
+    
+    let videoLink = '';
+    if (n.videoId) {
+        const vTitle = getVideoName(n.videoId);
+        if (vTitle) videoLink = '<div class="video-link"><i class="fas fa-video"></i> ' + vTitle + '</div>';
+    }
+    
+    let takeaway = '';
+    if (n.takeaway) takeaway = '<div class="note-takeaway"><i class="fas fa-lightbulb"></i> ' + n.takeaway + '</div>';
+    
+    let questions = '';
+    if (n.questions) questions = '<div class="note-questions"><i class="fas fa-question-circle"></i> ' + n.questions + '</div>';
+    
+    const expandedContent = document.getElementById('expandedNoteContent');
+    expandedContent.innerHTML = videoLink +
+        '<span class="note-category">' + n.category + '</span>' +
+        '<h2>' + n.title + '</h2>' +
+        '<div class="expanded-content-text">' + (n.content || '').replace(/\n/g, '<br>') + '</div>' +
+        takeaway + questions +
+        '<div class="note-meta">Created: ' + new Date(n.createdAt).toLocaleDateString() + '</div>';
+    
+    document.getElementById('expandedNoteTitle').textContent = n.title;
+    openModal('expandedNoteModal');
 }
 
 function renderJournal() {
