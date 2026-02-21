@@ -216,7 +216,8 @@ function populateChartDropdown() {
     let html = '<option value="">-- Select a chart --</option>';
     if (store.data && store.data.gallery) {
         store.data.gallery.forEach((g, index) => {
-            html += '<option value="' + index + '">Chart - ' + new Date(g.createdAt).toLocaleDateString() + '</option>';
+            const chartName = g.name || 'Untitled';
+            html += '<option value="' + index + '">' + chartName + ' - ' + new Date(g.createdAt).toLocaleDateString() + '</option>';
         });
     }
     sel.innerHTML = html;
@@ -755,7 +756,7 @@ function renderJournal() {
         // Build chart image if exists
         let chartHtml = '';
         if (e.chartImage) {
-            chartHtml = '<div class="journal-chart"><img src="' + e.chartImage + '" alt="Trade chart"></div>';
+            chartHtml = '<div class="journal-chart"><img src="' + e.chartImage + '" alt="Trade chart" onclick="openLightbox(\'' + e.chartImage + '\')" style="cursor:pointer"></div>';
         }
         
         // Trade details
