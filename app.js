@@ -2,7 +2,7 @@
 // 1. Delete playlist and videos
 // 2. Chart gallery download + lightbox view
 // 3. Flashcards fix (flip works now)
-// 4. Stats - removed pips, added P/L in dollarsss
+// 4. Stats - removed pips, added P/L in dollarss
 const YOUTUBE_API_KEY = 'AIzaSyB8jTuP8fvn4eOmZeaymdbCGCju2SiIT40';  
 // ==================== FIREBASE CONFIGURATION ====================
 const firebaseConfig = {
