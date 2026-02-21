@@ -24,8 +24,8 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         with:
-          model: anthropic/claude-sonnet-4-20250514
+          model: openrouter/anthropic/claude-sonnet-4-20250514
           # share: true
           # github_token: ${{ secrets.GITHUB_TOKEN }}
