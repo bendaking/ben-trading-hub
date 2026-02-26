@@ -1,3 +1,4 @@
+// Test comment added for issue #5
 // app.js - Updated with fixes for:
 // 1. Delete playlist and videos
 // 2. Chart gallery download + lightbox view
